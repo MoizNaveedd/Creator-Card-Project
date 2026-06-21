@@ -25,6 +25,9 @@ const server = createServer({
 
 const ENDPOINT_CONFIGS = [
   {
+    path: './endpoints/root/',
+  },
+  {
     path: './endpoints/onboarding/',
   },
   {
