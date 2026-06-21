@@ -297,10 +297,15 @@ function Server(serverConfig = {}) {
     });
   }
 
+  function getApp() {
+    return app;
+  }
+
   return {
     startServer,
     addHandler,
     executeRequest,
+    getApp,
   };
 }
 module.exports = Server;

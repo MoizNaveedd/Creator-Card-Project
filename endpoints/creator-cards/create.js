@@ -12,7 +12,7 @@ module.exports = createHandler({
     const response = await createCreatorCardService(payload);
 
     return {
-      status: helpers.http_statuses.HTTP_200_OK,
+      status: helpers.http_statuses.HTTP_201_CREATED,
       message: CreatorCardMessages.CREATED,
       data: response,
     };

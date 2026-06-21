@@ -2,6 +2,7 @@ const validator = require('@app-core/validator');
 const { throwAppError, ERROR_CODE } = require('@app-core/errors');
 const { CreatorCardMessages } = require('@app/messages');
 const CreatorCardRepo = require('@app/repository/creator-card');
+const serializeCard = require('./serialize');
 
 const createSpec = `root {
   title string<trim|minLength:3|maxLength:100>
@@ -77,46 +78,28 @@ function validateUrl(url) {
   return url.startsWith('http://') || url.startsWith('https://');
 }
 
-function serializeCard(card) {
-  const serialized = {
-    id: card._id,
-    title: card.title,
-    description: card.description || null,
-    slug: card.slug,
-    creator_reference: card.creator_reference,
-    links: card.links || [],
-    service_rates: card.service_rates || {},
-    status: card.status,
-    access_type: card.access_type,
-    access_code: card.access_code || null,
-    created: card.created,
-    updated: card.updated,
-    deleted: card.deleted || null,
-  };
-  return serialized;
-}
-
-async function createCreatorCard(serviceData) {
+// eslint-disable-next-line no-unused-vars
+async function createCreatorCard(serviceData, options = {}) {
   const data = validator.validate(serviceData, parsedCreateSpec);
 
   const accessType = data.access_type || 'public';
 
   if (accessType === 'private' && !data.access_code) {
-    throwAppError(CreatorCardMessages.ACCESS_CODE_REQUIRED, ERROR_CODE.AC01);
+    throwAppError(CreatorCardMessages.ACCESS_CODE_REQUIRED, ERROR_CODE.INVLDDATA);
   }
 
   if (accessType === 'public' && data.access_code) {
-    throwAppError(CreatorCardMessages.ACCESS_CODE_NOT_ALLOWED, ERROR_CODE.AC05);
+    throwAppError(CreatorCardMessages.ACCESS_CODE_NOT_ALLOWED, ERROR_CODE.INVLDDATA);
   }
 
   if (data.access_code && !validateAccessCodeChars(data.access_code)) {
-    throwAppError('access_code must be alphanumeric', ERROR_CODE.AC05);
+    throwAppError(CreatorCardMessages.INVALID_ACCESS_CODE_FORMAT, ERROR_CODE.INVLDDATA);
   }
 
   if (data.links && data.links.length) {
     for (let i = 0; i < data.links.length; i++) {
       if (!validateUrl(data.links[i].url)) {
-        throwAppError('Link url must start with http:// or https://', 'SPCL_VALIDATION');
+        throwAppError(CreatorCardMessages.INVALID_LINK_URL, ERROR_CODE.INVLDDATA);
       }
     }
   }
@@ -125,10 +108,7 @@ async function createCreatorCard(serviceData) {
 
   if (data.slug) {
     if (!validateSlugFormat(data.slug)) {
-      throwAppError(
-        'Slug must contain only alphanumeric characters, hyphens, and underscores',
-        'SPCL_VALIDATION'
-      );
+      throwAppError(CreatorCardMessages.INVALID_SLUG_FORMAT, ERROR_CODE.INVLDDATA);
     }
 
     slug = data.slug.toLowerCase();
@@ -138,7 +118,7 @@ async function createCreatorCard(serviceData) {
     });
 
     if (existingCard) {
-      throwAppError(CreatorCardMessages.SLUG_TAKEN, ERROR_CODE.SL02);
+      throwAppError(CreatorCardMessages.SLUG_TAKEN, ERROR_CODE.DUPLRCRD);
     }
   } else {
     slug = generateSlugFromTitle(data.title);
@@ -171,7 +151,9 @@ async function createCreatorCard(serviceData) {
 
   const createdCard = await CreatorCardRepo.create(cardData);
 
-  return serializeCard(createdCard);
+  const response = serializeCard(createdCard, { includeAccessCode: true });
+
+  return response;
 }
 
 module.exports = createCreatorCard;

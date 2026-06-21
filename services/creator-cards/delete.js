@@ -2,43 +2,29 @@ const validator = require('@app-core/validator');
 const { throwAppError, ERROR_CODE } = require('@app-core/errors');
 const { CreatorCardMessages } = require('@app/messages');
 const CreatorCardRepo = require('@app/repository/creator-card');
+const serializeCard = require('./serialize');
 
 const deleteSpec = `root {
+  slug string<trim|minLength:1>
   creator_reference string<length:20>
 }`;
 
 const parsedDeleteSpec = validator.parse(deleteSpec);
 
-function serializeCard(card) {
-  const serialized = {
-    id: card._id,
-    title: card.title,
-    description: card.description || null,
-    slug: card.slug,
-    creator_reference: card.creator_reference,
-    links: card.links || [],
-    service_rates: card.service_rates || {},
-    status: card.status,
-    access_type: card.access_type,
-    access_code: card.access_code || null,
-    created: card.created,
-    updated: card.updated,
-    deleted: card.deleted,
-  };
-  return serialized;
-}
-
-async function deleteCreatorCard(serviceData) {
+// eslint-disable-next-line no-unused-vars
+async function deleteCreatorCard(serviceData, options = {}) {
   const data = validator.validate(serviceData, parsedDeleteSpec);
 
-  const { slug } = serviceData;
-
   const card = await CreatorCardRepo.findOne({
-    query: { slug, deleted: null },
+    query: { slug: data.slug, deleted: null },
   });
 
   if (!card) {
-    throwAppError(CreatorCardMessages.NOT_FOUND, ERROR_CODE.NF01);
+    throwAppError(CreatorCardMessages.NOT_FOUND, ERROR_CODE.NOTFOUND);
+  }
+
+  if (card.creator_reference !== data.creator_reference) {
+    throwAppError(CreatorCardMessages.UNAUTHORIZED_DELETE, ERROR_CODE.PERMERR);
   }
 
   const now = Date.now();
@@ -51,7 +37,9 @@ async function deleteCreatorCard(serviceData) {
   card.deleted = now;
   card.updated = now;
 
-  return serializeCard(card);
+  const response = serializeCard(card, { includeAccessCode: true });
+
+  return response;
 }
 
 module.exports = deleteCreatorCard;

@@ -3,9 +3,11 @@
 if (!process.env.__ALREADY_BOOTSTRAPPED_ENVS) require('dotenv').config();
 
 const fs = require('fs');
+const swaggerUi = require('swagger-ui-express');
 const { createServer } = require('@app-core/server');
 const { createConnection } = require('@app-core/mongoose');
 const { createQueue } = require('@app-core/queue');
+const swaggerDoc = require('./swagger');
 
 const canLogEndpointInformation = process.env.CAN_LOG_ENDPOINT_INFORMATION;
 
@@ -27,6 +29,9 @@ const ENDPOINT_CONFIGS = [
   },
   {
     path: './endpoints/creator-cards/',
+  },
+  {
+    path: './endpoints/payment-instructions/',
   },
 ];
 
@@ -88,5 +93,7 @@ function setupEndpointHandlers(basePath, options = {}) {
 ENDPOINT_CONFIGS.forEach((config) => {
   setupEndpointHandlers(config.path, config.options);
 });
+
+server.getApp().use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 server.startServer();

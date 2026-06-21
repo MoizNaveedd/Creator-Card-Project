@@ -3,9 +3,13 @@ module.exports = {
   RETRIEVED: 'Creator Card Retrieved Successfully.',
   DELETED: 'Creator Card Deleted Successfully.',
   SLUG_TAKEN: 'Slug is already taken',
+  INVALID_SLUG_FORMAT: 'Slug must contain only alphanumeric characters, hyphens, and underscores',
   ACCESS_CODE_REQUIRED: 'access_code is required when access_type is private',
   ACCESS_CODE_NOT_ALLOWED: 'access_code must not be provided when access_type is public',
+  INVALID_ACCESS_CODE_FORMAT: 'access_code must be alphanumeric',
+  INVALID_LINK_URL: 'Link url must start with http:// or https://',
   NOT_FOUND: 'Creator card not found',
   ACCESS_CODE_MISSING: 'Card is private, access code required',
   ACCESS_CODE_INVALID: 'Invalid access code',
+  UNAUTHORIZED_DELETE: 'You are not authorized to delete this creator card',
 };
