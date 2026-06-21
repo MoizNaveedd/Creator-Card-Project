@@ -85,15 +85,15 @@ async function createCreatorCard(serviceData, options = {}) {
   const accessType = data.access_type || 'public';
 
   if (accessType === 'private' && !data.access_code) {
-    throwAppError(CreatorCardMessages.ACCESS_CODE_REQUIRED, ERROR_CODE.INVLDDATA);
+    throwAppError(CreatorCardMessages.ACCESS_CODE_REQUIRED, ERROR_CODE.AC01);
   }
 
   if (accessType === 'public' && data.access_code) {
-    throwAppError(CreatorCardMessages.ACCESS_CODE_NOT_ALLOWED, ERROR_CODE.INVLDDATA);
+    throwAppError(CreatorCardMessages.ACCESS_CODE_NOT_ALLOWED, ERROR_CODE.AC05);
   }
 
   if (data.access_code && !validateAccessCodeChars(data.access_code)) {
-    throwAppError(CreatorCardMessages.INVALID_ACCESS_CODE_FORMAT, ERROR_CODE.INVLDDATA);
+    throwAppError(CreatorCardMessages.INVALID_ACCESS_CODE_FORMAT, ERROR_CODE.AC05);
   }
 
   if (data.links && data.links.length) {
@@ -108,7 +108,7 @@ async function createCreatorCard(serviceData, options = {}) {
 
   if (data.slug) {
     if (!validateSlugFormat(data.slug)) {
-      throwAppError(CreatorCardMessages.INVALID_SLUG_FORMAT, ERROR_CODE.INVLDDATA);
+      throwAppError(CreatorCardMessages.INVALID_SLUG_FORMAT, ERROR_CODE.SL02);
     }
 
     slug = data.slug.toLowerCase();
@@ -118,7 +118,7 @@ async function createCreatorCard(serviceData, options = {}) {
     });
 
     if (existingCard) {
-      throwAppError(CreatorCardMessages.SLUG_TAKEN, ERROR_CODE.DUPLRCRD);
+      throwAppError(CreatorCardMessages.SLUG_TAKEN, ERROR_CODE.SL02);
     }
   } else {
     slug = generateSlugFromTitle(data.title);

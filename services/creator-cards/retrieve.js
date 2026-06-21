@@ -20,20 +20,20 @@ async function retrieveCreatorCard(serviceData, options = {}) {
   });
 
   if (!card) {
-    throwAppError(CreatorCardMessages.NOT_FOUND, ERROR_CODE.NOTFOUND);
+    throwAppError(CreatorCardMessages.NOT_FOUND, ERROR_CODE.NF01);
   }
 
   if (card.status === 'draft') {
-    throwAppError(CreatorCardMessages.NOT_FOUND, ERROR_CODE.NOTFOUND);
+    throwAppError(CreatorCardMessages.NOT_FOUND, ERROR_CODE.NF02);
   }
 
   if (card.access_type === 'private') {
     if (!data.access_code) {
-      throwAppError(CreatorCardMessages.ACCESS_CODE_MISSING, ERROR_CODE.INVLDREQ);
+      throwAppError(CreatorCardMessages.ACCESS_CODE_MISSING, ERROR_CODE.AC03);
     }
 
     if (data.access_code !== card.access_code) {
-      throwAppError(CreatorCardMessages.ACCESS_CODE_INVALID, ERROR_CODE.INVLDREQ);
+      throwAppError(CreatorCardMessages.ACCESS_CODE_INVALID, ERROR_CODE.AC04);
     }
   }
 

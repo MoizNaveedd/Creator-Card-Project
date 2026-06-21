@@ -20,11 +20,7 @@ async function deleteCreatorCard(serviceData, options = {}) {
   });
 
   if (!card) {
-    throwAppError(CreatorCardMessages.NOT_FOUND, ERROR_CODE.NOTFOUND);
-  }
-
-  if (card.creator_reference !== data.creator_reference) {
-    throwAppError(CreatorCardMessages.UNAUTHORIZED_DELETE, ERROR_CODE.PERMERR);
+    throwAppError(CreatorCardMessages.NOT_FOUND, ERROR_CODE.NF01);
   }
 
   const now = Date.now();
